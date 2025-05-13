@@ -33,9 +33,13 @@ def show_home():
             debug_placeholder = st.empty()
             
             # Process video
-            for frame, debug_info in counter.process_video(debug=True):
-                # Convert BGR to RGB
+            frame_skip = 3  # Process every 3rd frame
+            for i, (frame, debug_info) in enumerate(counter.process_video(debug=True)):
+                if i % frame_skip != 0:
+                    continue
+                # Convert BGR to RGB and resize for smoother display
                 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                frame_rgb = cv2.resize(frame_rgb, (640, 360))
                 video_placeholder.image(frame_rgb, channels="RGB")
                 
                 # Display debug info with vehicle types
@@ -77,13 +81,15 @@ def show_home():
     # Show dashboard if data exists
     st.subheader("Traffic Analysis Dashboard")
     df = load_traffic_data()
-    if df is not None:
+    if df is not None and not df.empty:
         fig = create_dashboard(df)
         if fig is not None:
             st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("No traffic data available yet. Upload a video to start collecting data.")
 
-    vehicle_types = ['car', 'motorcycle', 'bus', 'truck', 'bicycle']
-    type_values = [df.get(col, pd.Series([0])).iloc[-1] if col in df else 0 for col in vehicle_types]
-    type_labels = [col.title() for col in vehicle_types] 
+    # Only try to access vehicle type data if we have a non-empty DataFrame
+    if df is not None and not df.empty:
+        vehicle_types = ['car', 'motorcycle', 'bus', 'truck', 'bicycle']
+        type_values = [df[col].iloc[-1] if col in df.columns else 0 for col in vehicle_types]
+        type_labels = [col.title() for col in vehicle_types] 
