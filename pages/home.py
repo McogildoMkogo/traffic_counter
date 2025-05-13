@@ -92,4 +92,20 @@ def show_home():
     if df is not None and not df.empty:
         vehicle_types = ['car', 'motorcycle', 'bus', 'truck', 'bicycle']
         type_values = [df[col].iloc[-1] if col in df.columns else 0 for col in vehicle_types]
-        type_labels = [col.title() for col in vehicle_types] 
+        type_labels = [col.title() for col in vehicle_types]
+
+    # --- RESET BUTTON ---
+    st.markdown('---')
+    if st.button('Reset All Data'):
+        import os
+        import shutil
+        # Delete traffic_stats.csv if it exists
+        if os.path.exists('traffic_stats.csv'):
+            os.remove('traffic_stats.csv')
+        # Delete all files in traffic_stats/ directory
+        if os.path.exists('traffic_stats'):
+            shutil.rmtree('traffic_stats')
+        # Delete temp video if it exists
+        if os.path.exists('temp_video.mp4'):
+            os.remove('temp_video.mp4')
+        st.success('All statistics and temporary files have been reset.') 
