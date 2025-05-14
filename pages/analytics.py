@@ -29,24 +29,30 @@ def show_analytics():
         df = pd.read_csv(data_file)
         df['timestamp'] = pd.to_datetime(df['timestamp'])
         st.subheader("Traffic Patterns Over Time")
-        fig_time = px.line(df, x='timestamp', y=['total_count', 'north_count', 'south_count'],
-                          title='Vehicle Counts Over Time',
-                          labels={'value': 'Vehicle Count', 'timestamp': 'Time'})
+        # Plot each vehicle type over time
+        vehicle_types = ['car', 'motorcycle', 'bus', 'truck', 'bicycle']
+        fig_time = go.Figure()
+        for vtype in vehicle_types:
+            if vtype in df.columns:
+                fig_time.add_trace(go.Scatter(x=df['timestamp'], y=df[vtype], mode='lines', name=vtype.title()))
+        fig_time.update_layout(title='Vehicle Counts Over Time', xaxis_title='Time', yaxis_title='Vehicle Count')
         st.plotly_chart(fig_time, use_container_width=True)
+
         st.subheader("Average Speed Over Time")
         fig_speed = px.line(df, x='timestamp', y='avg_speed',
                           title='Average Speed Over Time',
                           labels={'avg_speed': 'Speed (km/h)', 'timestamp': 'Time'})
         st.plotly_chart(fig_speed, use_container_width=True)
-        st.subheader("Direction Distribution (Latest)")
+
+        st.subheader("Lane Distribution (Latest)")
         if not df.empty:
             latest = df.iloc[-1]
             direction_data = pd.DataFrame({
-                'Direction': ['Northbound', 'Southbound'],
+                'Lane': ['Lane 1', 'Lane 2'],
                 'Count': [latest['north_count'], latest['south_count']]
             })
-            fig_direction = px.bar(direction_data, x='Direction', y='Count',
-                                  title='Traffic Distribution by Direction')
+            fig_direction = px.bar(direction_data, x='Lane', y='Count',
+                                  title='Traffic Distribution by Lane')
             st.plotly_chart(fig_direction, use_container_width=True)
         st.subheader("Raw Data")
         st.dataframe(df)
