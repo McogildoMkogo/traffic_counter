@@ -1,0 +1,8 @@
+{
+    "detection_confidence": 0.6,
+    "tracking_persistence": 45,
+    "count_line_position": 0.5,
+    "speed_estimation_enabled": true,
+    "direction_detection_enabled": true,
+    "save_processed_video": false
+} 
